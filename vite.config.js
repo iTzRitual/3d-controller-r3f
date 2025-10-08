@@ -3,44 +3,39 @@ import { transformWithEsbuild } from 'vite'
 import restart from 'vite-plugin-restart'
 
 export default {
-    root: 'src/',
-    publicDir: '../public/',
-    plugins:
-    [
-        // Restart server on static/public file change
-        restart({ restart: [ '../public/**', ] }),
+  root: 'src/',
+  publicDir: '../public/',
+  base: '/3d-controller-r3f/', 
 
-        // React support
-        react(),
-
-        // .js file support as if it was JSX
-        {
-            name: 'load+transform-js-files-as-jsx',
-            async transform(code, id)
-            {
-                if (!id.match(/src\/.*\.js$/))
-                    return null
-
-                return transformWithEsbuild(code, id, {
-                    loader: 'jsx',
-                    jsx: 'automatic',
-                });
-            },
-        },
-    ],
-    server:
+  plugins: [
+    restart({ restart: ['../public/**'] }),
+    react(),
     {
-        host: true, // Open to local network and display URL
-        open: !('SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env) // Open if it's not a CodeSandbox
+      name: 'load+transform-js-files-as-jsx',
+      async transform(code, id) {
+        if (!id.match(/src\/.*\.js$/)) return null
+
+        return transformWithEsbuild(code, id, {
+          loader: 'jsx',
+          jsx: 'automatic',
+        })
+      },
     },
-    build:
-    {
-        outDir: '../dist', // Output in the dist/ folder
-        emptyOutDir: true, // Empty the folder first
-        sourcemap: true // Add sourcemap
-    },
-    optimizeDeps: {
-        force: true,
-        include: ['@react-three/drei']
-    }
+  ],
+
+  server: {
+    host: true,
+    open: !('SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env),
+  },
+
+  build: {
+    outDir: '../docs', 
+    emptyOutDir: true,
+    sourcemap: true,
+  },
+
+  optimizeDeps: {
+    force: true,
+    include: ['@react-three/drei'],
+  },
 }
